@@ -1,3 +1,39 @@
+<!-- src/components/FileManager.vue -->
+
+<template>
+  <div class="file-manager">
+    <h2>Uploaded Files</h2>
+    <el-table v-loading="loading" :data="files" style="width: 100%">
+      <el-table-column label="File Name">
+        <template #default="{ row }">
+          <a :href="row.file" target="_blank">{{ getFileName(row.file) }}</a>
+        </template>
+      </el-table-column>
+      <el-table-column label="Upload Time">
+        <template #default="{ row }">
+          {{ formatDate(row.uploaded_at) }}
+        </template>
+      </el-table-column>
+      <el-table-column label="Size">
+        <template #default="{ row }">
+          {{ formatSize(row.size) }}
+        </template>
+      </el-table-column>
+      <el-table-column label="Operations">
+        <template #default="{ row }">
+          <el-button
+            type="danger"
+            size="small"
+            @click="handleDelete(row.id)"
+          >
+            Delete
+          </el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+  </div>
+</template>
+
 <script>
 import { ref, onMounted } from 'vue';
 import { useStore } from 'vuex';
@@ -33,7 +69,7 @@ export default {
             type: 'warning',
           }
         );
-        
+
         await store.dispatch('files/deleteFile', fileId);
         ElMessage.success('File deleted successfully');
         await fetchFiles(); // Refresh the file list after deletion
@@ -44,6 +80,20 @@ export default {
       }
     };
 
+    const getFileName = (filePath) => {
+      // 提取文件名
+      return filePath.split('/').pop();
+    };
+
+    const formatDate = (dateString) => {
+      const date = new Date(dateString);
+      return date.toLocaleString();
+    };
+
+    const formatSize = (sizeInBytes) => {
+      return (sizeInBytes / 1024).toFixed(2) + ' KB';
+    };
+
     onMounted(() => {
       fetchFiles();
     });
@@ -52,37 +102,13 @@ export default {
       files,
       loading,
       handleDelete,
-      refreshFiles: fetchFiles, // Expose the refresh method
+      getFileName,
+      formatDate,
+      formatSize,
     };
   },
 };
 </script>
-
-<template>
-  <div class="file-manager">
-    <h2>Uploaded Files</h2>
-    <el-table v-loading="loading" :data="files" style="width: 100%">
-      <el-table-column prop="name" label="File Name" />
-      <el-table-column prop="upload_time" label="Upload Time" />
-      <el-table-column prop="size" label="Size">
-        <template #default="{ row }">
-          {{ (row.size / 1024).toFixed(2) }} KB
-        </template>
-      </el-table-column>
-      <el-table-column label="Operations">
-        <template #default="{ row }">
-          <el-button
-            type="danger"
-            size="small"
-            @click="handleDelete(row.id)"
-          >
-            Delete
-          </el-button>
-        </template>
-      </el-table-column>
-    </el-table>
-  </div>
-</template>
 
 <style scoped>
 .file-manager {

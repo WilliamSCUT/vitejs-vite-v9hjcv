@@ -1,3 +1,32 @@
+<!-- src/components/CsvUploader.vue -->
+
+<template>
+  <div class="csv-uploader">
+    <el-upload
+      :auto-upload="false"
+      :show-file-list="false"
+      :on-change="file => handleUpload(file.raw)"
+      :disabled="uploading"
+      drag
+    >
+      <el-icon><upload-filled /></el-icon>
+      <div class="el-upload__text">
+        <template v-if="!uploading">
+          Drop file here or <em>click to upload</em>
+        </template>
+        <template v-else>
+          Uploading...
+        </template>
+      </div>
+      <template #tip>
+        <div class="el-upload__tip">
+          Only CSV files with Time and Response columns are allowed, and file size should not exceed 2MB
+        </div>
+      </template>
+    </el-upload>
+  </div>
+</template>
+
 <script>
 import { ref, inject } from 'vue';
 import { useStore } from 'vuex';
@@ -107,33 +136,6 @@ export default {
   },
 };
 </script>
-
-<template>
-  <div class="csv-uploader">
-    <el-upload
-      :auto-upload="false"
-      :show-file-list="false"
-      :on-change="file => handleUpload(file.raw)"
-      :disabled="uploading"
-      drag
-    >
-      <el-icon><upload-filled /></el-icon>
-      <div class="el-upload__text">
-        <template v-if="!uploading">
-          Drop file here or <em>click to upload</em>
-        </template>
-        <template v-else>
-          Uploading...
-        </template>
-      </div>
-      <template #tip>
-        <div class="el-upload__tip">
-          Only CSV files with Time and Response columns are allowed, and file size should not exceed 2MB
-        </div>
-      </template>
-    </el-upload>
-  </div>
-</template>
 
 <style scoped>
 .csv-uploader {

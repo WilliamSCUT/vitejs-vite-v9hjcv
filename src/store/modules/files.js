@@ -1,3 +1,5 @@
+// src/store/modules/files.js
+
 import { filesApi } from '../../api/files';
 
 const state = {
@@ -21,11 +23,12 @@ const mutations = {
 const actions = {
   async fetchFiles({ commit }) {
     commit('SET_LOADING', true);
+    commit('SET_ERROR', null); // 重置错误状态
     try {
       const response = await filesApi.getFiles();
       commit('SET_FILES', response.data);
     } catch (error) {
-      commit('SET_ERROR', error.message);
+      commit('SET_ERROR', error.message || 'Failed to fetch files');
     } finally {
       commit('SET_LOADING', false);
     }
@@ -33,11 +36,12 @@ const actions = {
 
   async deleteFile({ commit, dispatch }, fileId) {
     commit('SET_LOADING', true);
+    commit('SET_ERROR', null); // 重置错误状态
     try {
       await filesApi.deleteFile(fileId);
       dispatch('fetchFiles');
     } catch (error) {
-      commit('SET_ERROR', error.message);
+      commit('SET_ERROR', error.message || 'Failed to delete file');
     } finally {
       commit('SET_LOADING', false);
     }
