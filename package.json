@@ -12,7 +12,10 @@
     "element-plus": "^2.2.0",
     "papaparse": "^5.3.2",
     "vue": "^3.2.33",
-    "vuex": "^4.0.2"
+    "vuex": "^4.0.2",
+    "chart.js": "^3.9.1",
+    "chartjs-plugin-zoom": "^1.2.1",
+    "@types/chart.js": "^2.9.37"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^2.3.3",

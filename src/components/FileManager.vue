@@ -28,9 +28,30 @@
           >
             Delete
           </el-button>
+          <el-button
+            type="primary"
+            size="small"
+            @click="handleLabel(row)"
+          >
+            Label
+          </el-button>
+        </template>
+      </el-table-column>
+      <el-table-column label="View Chart">
+        <template #default="{ row }">
+          <el-button
+            type="primary"
+            size="small"
+            @click="showChart(row)"
+          >
+            View Chart
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
+    <el-dialog v-model="chartDialogVisible" title="Chart and Labels" width="80%">
+      <ChartLabeler :csv-data="currentCsvData" :file-name="currentFileName" v-if="chartDialogVisible" />
+    </el-dialog>
   </div>
 </template>
 
@@ -38,13 +59,21 @@
 import { ref, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import { ElMessageBox, ElMessage } from 'element-plus';
+import ChartLabeler from './ChartLabeler.vue';
+import Papa from 'papaparse';
 
 export default {
   name: 'FileManager',
+  components: {
+    ChartLabeler
+  },
   setup() {
     const store = useStore();
     const files = ref([]);
     const loading = ref(false);
+    const chartDialogVisible = ref(false);
+    const currentCsvData = ref([]);
+    const currentFileName = ref('');
 
     const fetchFiles = async () => {
       loading.value = true;
@@ -94,6 +123,25 @@ export default {
       return (sizeInBytes / 1024).toFixed(2) + ' KB';
     };
 
+    const showChart = async (file) => {
+      try {
+        const response = await fetch(file.file);
+        const csvText = await response.text();
+        const result = Papa.parse(csvText, { header: true });
+        currentCsvData.value = result.data;
+        currentFileName.value = getFileName(file.file);
+        chartDialogVisible.value = true;
+      } catch (error) {
+        ElMessage.error('Failed to load CSV data');
+      }
+    };
+
+    const handleLabel = (file) => {
+      currentCsvData.value = [];
+      currentFileName.value = getFileName(file.file);
+      showChart(file);
+    };
+
     onMounted(() => {
       fetchFiles();
     });
@@ -105,6 +153,11 @@ export default {
       getFileName,
       formatDate,
       formatSize,
+      chartDialogVisible,
+      currentCsvData,
+      currentFileName,
+      showChart,
+      handleLabel,
     };
   },
 };
